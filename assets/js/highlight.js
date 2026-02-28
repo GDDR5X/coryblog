@@ -1,0 +1,195 @@
+/**
+ * Simple Syntax Highlighter
+ * Safe implementation that mimics PrismJS behavior
+ */
+
+document.addEventListener('DOMContentLoaded', () => {
+    highlightAll();
+    addCopyButtons();
+});
+
+function highlightAll() {
+    const codes = document.querySelectorAll('pre code');
+    codes.forEach(code => {
+        const classes = code.className;
+        const langMatch = classes.match(/language-(\w+)/);
+        const lang = langMatch ? langMatch[1] : 'text';
+        
+        // Add data-language attribute to parent pre for styling
+        code.parentElement.setAttribute('data-language', lang);
+
+        if (lang === 'text') return;
+
+        const text = code.textContent;
+        code.innerHTML = highlight(text, lang);
+    });
+}
+
+function addCopyButtons() {
+    const preBlocks = document.querySelectorAll('pre');
+    
+    preBlocks.forEach(pre => {
+        // Create button
+        const button = document.createElement('button');
+        button.className = 'copy-btn';
+        button.innerHTML = '<i class="far fa-copy"></i>'; // Icon
+        button.title = 'Copy to clipboard';
+        
+        // Add click event
+        button.addEventListener('click', () => {
+            const code = pre.querySelector('code');
+            if (!code) return;
+            
+            const text = code.textContent; // Get plain text
+            
+            navigator.clipboard.writeText(text).then(() => {
+                // Success feedback
+                const originalHtml = button.innerHTML;
+                button.innerHTML = '<i class="fas fa-check"></i>';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalHtml;
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy text: ', err);
+                button.innerHTML = '<i class="fas fa-times"></i>';
+            });
+        });
+        
+        pre.appendChild(button);
+    });
+}
+
+function highlight(text, lang) {
+    let output = '';
+    let i = 0;
+    
+    // Definitions
+    const keywords = new Set([
+        'function', 'return', 'if', 'else', 'for', 'while', 'var', 'let', 'const', 
+        'class', 'import', 'from', 'try', 'catch', 'async', 'await', 'echo', 
+        'public', 'private', 'protected', 'static', 'new', 'this', 'extends', 
+        'implements', 'interface', 'package', 'use', 'namespace', 'include', 
+        'require', 'null', 'true', 'false', 'void', 'int', 'string', 'bool',
+        'foreach', 'as', 'switch', 'case', 'break', 'default', 'continue',
+        'struct', 'union', 'enum', 'typedef', 'sizeof', 'do'
+    ]);
+
+    while (i < text.length) {
+        let remaining = text.substring(i);
+        
+        // 1. Comments
+        // Single line // or # (PHP/Python)
+        if (remaining.startsWith('//') || remaining.startsWith('#')) {
+            const end = remaining.indexOf('\n');
+            const comment = (end === -1) ? remaining : remaining.substring(0, end);
+            output += `<span class="token comment">${escapeHtml(comment)}</span>`;
+            i += comment.length;
+            continue;
+        }
+        
+        // Block Comments /* ... */
+        if (remaining.startsWith('/*')) {
+            const end = remaining.indexOf('*/');
+            const comment = (end === -1) ? remaining : remaining.substring(0, end + 2);
+            output += `<span class="token comment">${escapeHtml(comment)}</span>`;
+            i += comment.length;
+            continue;
+        }
+
+        // 2. Strings
+        if (remaining.startsWith('"') || remaining.startsWith("'")) {
+            const quote = remaining[0];
+            let end = -1;
+            let escaped = false;
+            // Find closing quote, ignoring escaped ones
+            for (let j = 1; j < remaining.length; j++) {
+                if (remaining[j] === '\\') {
+                    escaped = !escaped;
+                } else if (remaining[j] === quote && !escaped) {
+                    end = j;
+                    break;
+                } else {
+                    escaped = false;
+                }
+            }
+            
+            if (end !== -1) {
+                const string = remaining.substring(0, end + 1);
+                output += `<span class="token string">${escapeHtml(string)}</span>`;
+                i += string.length;
+                continue;
+            }
+        }
+
+        // 3. HTML/PHP Tags
+        if ((lang === 'html' || lang === 'xml' || lang === 'php') && remaining.startsWith('<')) {
+            // PHP Tags
+            if (remaining.startsWith('<?php') || remaining.startsWith('<?') || remaining.startsWith('?>')) {
+                 const match = remaining.match(/^<\?php|<\?|\?>/);
+                 if (match) {
+                     output += `<span class="token keyword">${escapeHtml(match[0])}</span>`;
+                     i += match[0].length;
+                     continue;
+                 }
+            }
+            
+            // HTML Tags
+            const tagMatch = remaining.match(/^<\/?\w+[^>]*>/);
+            if (tagMatch) {
+                // Tokenize inside tag? For now, just color the whole tag
+                output += `<span class="token tag">${escapeHtml(tagMatch[0])}</span>`;
+                i += tagMatch[0].length;
+                continue;
+            }
+        }
+
+        // 4. Numbers
+        const numMatch = remaining.match(/^\d+(\.\d+)?/);
+        if (numMatch) {
+            output += `<span class="token number">${numMatch[0]}</span>`;
+            i += numMatch[0].length;
+            continue;
+        }
+
+        // 5. Keywords & Identifiers
+        const wordMatch = remaining.match(/^[a-zA-Z_$]\w*/);
+        if (wordMatch) {
+            const word = wordMatch[0];
+            if (keywords.has(word)) {
+                output += `<span class="token keyword">${word}</span>`;
+            } else if (remaining.substring(word.length).trim().startsWith('(')) {
+                output += `<span class="token function-name">${word}</span>`;
+            } else {
+                // Just text/variable
+                output += escapeHtml(word);
+            }
+            i += word.length;
+            continue;
+        }
+
+        // 6. Punctuation / Operators
+        if (/[{}[\];(),.:]/.test(remaining[0])) {
+             output += `<span class="token punctuation">${escapeHtml(remaining[0])}</span>`;
+             i++;
+             continue;
+        }
+        
+        // Default: just append escaped char
+        output += escapeHtml(remaining[0]);
+        i++;
+    }
+
+    return output;
+}
+
+function escapeHtml(unsafe) {
+    return unsafe
+         .replace(/&/g, "&amp;")
+         .replace(/</g, "&lt;")
+         .replace(/>/g, "&gt;")
+         .replace(/"/g, "&quot;")
+         .replace(/'/g, "&#039;");
+}

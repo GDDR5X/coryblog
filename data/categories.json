@@ -1,0 +1,17 @@
+[
+    {
+        "id": 1,
+        "name": "Uncategorized",
+        "slug": "uncategorized"
+    },
+    {
+        "id": 2,
+        "name": "Anime Reviews",
+        "slug": "anime-reviews"
+    },
+    {
+        "id": 3,
+        "name": "Tech",
+        "slug": "tech"
+    }
+]

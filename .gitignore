@@ -1,0 +1,20 @@
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# PHP
+vendor/
+composer.lock
+
+# Logs
+*.log
+
+# Backups
+*.bak
+data/posts.json.bak

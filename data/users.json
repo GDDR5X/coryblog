@@ -1,0 +1,16 @@
+[
+    {
+        "id": 1,
+        "username": "admin",
+        "password_hash": "$2y$10$i.aWX06ZxnIS0mP7xz2nFuE5KmXdawrGUXWrExKcs5kLYHxABJpZC",
+        "email": "admin@example.com",
+        "created_at": "2026-02-26 12:10:47"
+    },
+    {
+        "id": 2,
+        "username": "cory",
+        "password_hash": "$2y$10$MJjopEGhkk.G7gMbO5xKeuw06mqIXevX6AaC5H50DhsKjvuUVdCEy",
+        "email": "1257158482@qq.com",
+        "created_at": "2026-02-26 12:13:10"
+    }
+]

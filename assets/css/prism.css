@@ -1,0 +1,77 @@
+/* PrismJS 1.29.0
+https://prismjs.com/download.html#themes=prism-tomorrow&languages=markup+css+clike+javascript+bash+json+markdown+php+python+sql+typescript */
+code[class*=language-],pre[class*=language-]{color:#ccc;background:0 0;font-family:Consolas,Monaco,'Andale Mono','Ubuntu Mono',monospace;font-size:1em;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;word-wrap:normal;line-height:1.5;-moz-tab-size:4;-o-tab-size:4;tab-size:4;-webkit-hyphens:none;-moz-hyphens:none;-ms-hyphens:none;hyphens:none}pre[class*=language-]{padding:1em;margin:.5em 0;overflow:auto}:not(pre)>code[class*=language-],pre[class*=language-]{background:#2d2d2d}:not(pre)>code[class*=language-]{padding:.1em;border-radius:.3em;white-space:normal}.token.block-comment,.token.cdata,.token.comment,.token.doctype,.token.prolog{color:#999}.token.punctuation{color:#ccc}.token.attr-name,.token.deleted,.token.namespace,.token.tag{color:#e2777a}.token.function-name{color:#6196cc}.token.boolean,.token.number{color:#f08d49}.token.class-name,.token.constant,.token.property,.token.symbol{color:#f8c555}.token.atrule,.token.builtin,.token.important,.token.keyword,.token.selector{color:#cc99cd}.token.attr-value,.token.char,.token.regex,.token.string,.token.variable{color:#7ec699}.token.entity,.token.operator,.token.url{color:#67cdcc}.token.bold,.token.important{font-weight:700}.token.italic{font-style:italic}.token.entity{cursor:help}.token.inserted{color:green}
+
+/* Custom Overrides for Blog */
+pre[class*="language-"] {
+    position: relative; /* Essential for copy button positioning */
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    margin: 1.5em 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 2.5em; /* Space for copy button */
+}
+
+/* Language Label (Optional: shows language name) */
+pre[class*="language-"]::before {
+    content: attr(data-language);
+    position: absolute;
+    top: 10px;
+    left: 15px;
+    font-size: 0.8rem;
+    color: #666;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+code[class*="language-"] {
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 0.95rem;
+}
+
+/* Inline code style update */
+:not(pre) > code {
+    background: rgba(135, 206, 250, 0.15);
+    color: #d63384;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Fira Code', 'Consolas', monospace;
+}
+
+/* Copy Button Styles */
+.copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    color: #999;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px; /* Soft square */
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    opacity: 0; /* Hidden by default */
+}
+
+pre[class*="language-"]:hover .copy-btn {
+    opacity: 1; /* Show on hover */
+}
+
+.copy-btn:hover {
+    background: rgba(135, 206, 250, 0.2); /* Light blue tint */
+    color: white;
+    border-color: rgba(135, 206, 250, 0.4);
+    transform: translateY(-2px);
+}
+
+.copy-btn.copied {
+    background: #4caf50;
+    color: white;
+    border-color: #4caf50;
+}

@@ -1,0 +1,105 @@
+
+/* Post Container (Grid Layout) */
+.post-container {
+    display: grid;
+    grid-template-columns: 240px 1fr; /* TOC fixed width | Content flexible */
+    gap: 30px;
+    position: relative;
+    align-items: start;
+    max-width: 98%; /* Use percentage to fill screen */
+    margin: 0 auto;
+    padding-left: 10px; /* Minimal padding */
+    padding-right: 10px;
+    z-index: 1; /* Ensure content is below header */
+}
+
+/* Post Content Column */
+.post-main {
+    min-width: 0; /* Fix grid overflow */
+    max-width: 100%; /* Allow content to fill available space */
+    margin: 0; 
+    width: 100%;
+    position: relative;
+    z-index: 1;
+}
+
+/* TOC Sidebar */
+.post-sidebar {
+    position: sticky;
+    top: 100px; /* Offset for fixed header */
+    height: auto;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    width: 240px;
+    z-index: 10;
+}
+
+.toc-card {
+    background: white;
+    padding: 20px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255, 182, 193, 0.2);
+}
+
+.toc-title {
+    font-size: 1.1rem;
+    color: var(--primary-dark);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--secondary-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.toc-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.toc-list li {
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.toc-list a {
+    color: #666;
+    display: block;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s;
+    border-bottom: none; /* Override default link style */
+}
+
+.toc-list a:hover, .toc-list a.active {
+    color: var(--primary-color);
+    background-color: rgba(255, 182, 193, 0.15);
+    transform: translateX(5px);
+}
+
+/* Indentation for H2 and H3 */
+.toc-list .toc-h2 { padding-left: 0; font-weight: 600; }
+.toc-list .toc-h3 { padding-left: 15px; font-size: 0.85rem; }
+.toc-list .toc-h4 { padding-left: 30px; font-size: 0.8rem; }
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .post-container {
+        grid-template-columns: 1fr;
+    }
+    .post-sidebar {
+        display: none; /* Hide TOC on mobile/tablet for now, or move to top */
+    }
+}
+
+/* Scrollbar for TOC */
+.post-sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+.post-sidebar::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.1);
+    border-radius: 3px;
+}
