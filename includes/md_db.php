@@ -104,7 +104,7 @@ function get_post_by_id_md($id) {
 }
 
 function save_post_md($post_data) {
-    $slug = $post_data['slug'];
+    $slug = basename($post_data['slug']);
     // Ensure unique slug if new? MD files overwrite if name same.
     // If user changes slug, we might need to delete old file?
     // For simplicity, we assume slug is the identifier.
@@ -130,6 +130,7 @@ function save_post_md($post_data) {
 }
 
 function delete_post_md($slug) {
+    $slug = basename($slug);
     $file = POSTS_DIR . $slug . '.md';
     if (file_exists($file)) {
         return unlink($file);

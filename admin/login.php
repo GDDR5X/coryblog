@@ -12,22 +12,27 @@ if (is_logged_in()) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
-
-    if ($username && $password) {
-        // Use JSON DB function
-        $user = get_user_by_username($username);
-
-        if ($user && password_verify($password, $user['password_hash'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            redirect('index.php');
-        } else {
-            $error = "用户名或密码错误。";
-        }
+    // Validate CSRF token
+    if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "无效的请求。";
     } else {
-        $error = "请填写所有字段。";
+        $username = trim($_POST['username']);
+        $password = trim($_POST['password']);
+
+        if ($username && $password) {
+            // Use JSON DB function
+            $user = get_user_by_username($username);
+
+            if ($user && password_verify($password, $user['password_hash'])) {
+                $_SESSION['user_id'] = $user['id'];
+                $_SESSION['username'] = $user['username'];
+                redirect('index.php');
+            } else {
+                $error = "用户名或密码错误。";
+            }
+        } else {
+            $error = "请填写所有字段。";
+        }
     }
 }
 ?>
@@ -52,6 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="post">
+            <?php echo csrf_field(); ?>
             <div class="form-group">
                 <label>用户名</label>
                 <input type="text" name="username" required>

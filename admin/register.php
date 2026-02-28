@@ -13,30 +13,35 @@ $error = '';
 $success = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
-    $confirm_password = trim($_POST['confirm_password']);
-    $email = trim($_POST['email']);
+    // Validate CSRF token
+    if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "无效的请求。";
+    } else {
+        $username = trim($_POST['username']);
+        $password = trim($_POST['password']);
+        $confirm_password = trim($_POST['confirm_password']);
+        $email = trim($_POST['email']);
 
-    if ($username && $password && $confirm_password) {
-        if ($password !== $confirm_password) {
-            $error = "两次输入的密码不一致。";
-        } elseif (strlen($password) < 6) {
-            $error = "密码长度至少需要6位。";
-        } else {
-            // Attempt to register
-            if (get_user_by_username($username)) {
-                $error = "用户名已存在。";
+        if ($username && $password && $confirm_password) {
+            if ($password !== $confirm_password) {
+                $error = "两次输入的密码不一致。";
+            } elseif (strlen($password) < 6) {
+                $error = "密码长度至少需要6位。";
             } else {
-                if (add_user($username, $password, $email)) {
-                    $success = "注册成功！你现在可以登录了。";
+                // Attempt to register
+                if (get_user_by_username($username)) {
+                    $error = "用户名已存在。";
                 } else {
-                    $error = "注册失败，请重试。";
+                    if (add_user($username, $password, $email)) {
+                        $success = "注册成功！你现在可以登录了。";
+                    } else {
+                        $error = "注册失败，请重试。";
+                    }
                 }
             }
+        } else {
+            $error = "请填写所有必填项。";
         }
-    } else {
-        $error = "请填写所有必填项。";
     }
 }
 ?>
@@ -69,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         <?php else: ?>
             <form method="post">
+                <?php echo csrf_field(); ?>
                 <div class="form-group">
                     <label>用户名 <span style="color:red">*</span></label>
                     <input type="text" name="username" required value="<?php echo isset($username) ? h($username) : ''; ?>">

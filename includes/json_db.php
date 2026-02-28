@@ -1,7 +1,12 @@
 <?php
 // includes/json_db.php
 
-// Define data file paths
+// 如果有SQLite扩展，不定义任何函数（直接使用db.php中的函数）
+if (extension_loaded('pdo_sqlite')) {
+    return;
+}
+
+// Define data file paths (for backward compatibility)
 define('DATA_DIR', __DIR__ . '/../data/');
 define('FILE_POSTS', DATA_DIR . 'posts.json');
 define('FILE_USERS', DATA_DIR . 'users.json');
@@ -10,7 +15,7 @@ define('FILE_COMMENTS', DATA_DIR . 'comments.json');
 
 // Ensure data directory exists
 if (!is_dir(DATA_DIR)) {
-    mkdir(DATA_DIR, 0777, true);
+    mkdir(DATA_DIR, 0755, true);
 }
 
 // Helper to read JSON file
@@ -36,7 +41,7 @@ function get_next_id($data) {
     return max($ids) + 1;
 }
 
-// Data Access Functions
+// Data Access Functions - JSON storage implementation
 
 // --- Users ---
 function get_user_by_username($username) {
@@ -61,14 +66,6 @@ function get_user_by_id($id) {
 
 function add_user($username, $password, $email = '') {
     $users = read_json(FILE_USERS);
-    
-    // Check if username exists
-    foreach ($users as $user) {
-        if ($user['username'] === $username) {
-            return false; // Username exists
-        }
-    }
-
     $new_user = [
         'id' => get_next_id($users),
         'username' => $username,
@@ -76,10 +73,9 @@ function add_user($username, $password, $email = '') {
         'email' => $email,
         'created_at' => date('Y-m-d H:i:s')
     ];
-
     $users[] = $new_user;
     write_json(FILE_USERS, $users);
-    return true;
+    return $new_user;
 }
 
 // --- Categories ---
@@ -88,13 +84,13 @@ function get_all_categories() {
 }
 
 function get_category_name($id) {
-    $categories = get_all_categories();
-    foreach ($categories as $cat) {
-        if ($cat['id'] == $id) {
-            return $cat['name'];
+    $categories = read_json(FILE_CATEGORIES);
+    foreach ($categories as $category) {
+        if ($category['id'] == $id) {
+            return $category['name'];
         }
     }
-    return 'Uncategorized';
+    return '未分类';
 }
 
 // --- Posts (Migrated to MD) ---
@@ -107,64 +103,28 @@ function get_post_by_slug($slug) {
 }
 
 function get_post_by_id($id) {
-    return get_post_by_id_md($id);
+    return get_post_by_slug($id);
 }
 
 function save_post($post_data) {
-    // Handle slug change (rename)
-    // $post_data['id'] holds the old slug (if editing)
-    if (isset($post_data['id']) && $post_data['id'] && $post_data['id'] !== $post_data['slug']) {
-        // Delete old MD file
-        delete_post_md($post_data['id']);
-        
-        // Update comments linked to old slug
-        $comments = read_json(FILE_COMMENTS);
-        $updated = false;
-        foreach ($comments as &$c) {
-            if ($c['post_id'] == $post_data['id']) {
-                $c['post_id'] = $post_data['slug'];
-                $updated = true;
-            }
-        }
-        if ($updated) {
-            write_json(FILE_COMMENTS, $comments);
-        }
-    }
-    
     return save_post_md($post_data);
 }
 
 function delete_post($id) {
-    // $id is the slug
-    if (delete_post_md($id)) {
-        // Also delete comments for this post
-        $comments = read_json(FILE_COMMENTS);
-        $comments = array_filter($comments, function($c) use ($id) {
-            return $c['post_id'] != $id;
-        });
-        write_json(FILE_COMMENTS, array_values($comments));
-        return true;
-    }
-    return false;
+    return delete_post_md($id);
 }
 
 // --- Comments ---
 function get_comments_by_post($post_id, $approved_only = true) {
     $comments = read_json(FILE_COMMENTS);
     $result = [];
-    foreach ($comments as $c) {
-        // post_id is now a string (slug)
-        if ($c['post_id'] == $post_id) {
-            if ($approved_only && $c['is_approved'] != 1) {
-                continue;
+    foreach ($comments as $comment) {
+        if ($comment['post_id'] === $post_id) {
+            if (!$approved_only || $comment['is_approved']) {
+                $result[] = $comment;
             }
-            $result[] = $c;
         }
     }
-    // Sort by created_at desc
-    usort($result, function($a, $b) {
-        return strtotime($b['created_at']) - strtotime($a['created_at']);
-    });
     return $result;
 }
 
@@ -172,14 +132,14 @@ function add_comment($post_id, $author, $content) {
     $comments = read_json(FILE_COMMENTS);
     $new_comment = [
         'id' => get_next_id($comments),
-        'post_id' => $post_id, // This will be the slug
+        'post_id' => $post_id,
         'author_name' => $author,
         'content' => $content,
-        'is_approved' => 0, // Default pending
+        'is_approved' => 0,
         'created_at' => date('Y-m-d H:i:s')
     ];
     $comments[] = $new_comment;
     write_json(FILE_COMMENTS, $comments);
-    return true;
+    return $new_comment;
 }
 ?>

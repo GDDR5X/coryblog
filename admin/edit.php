@@ -28,32 +28,37 @@ if ($id) {
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = trim($_POST['title']);
-    $slug = trim($_POST['slug']);
-    if (!$slug) {
-        $slug = strtolower(str_replace(' ', '-', $title));
-    }
-    $content = $_POST['content'];
-    $category_id = $_POST['category_id'];
-    $status = $_POST['status'];
-
-    if ($title && $content) {
-        $data = [
-            'id' => $id ? $id : null,
-            'title' => $title,
-            'slug' => $slug,
-            'content' => $content,
-            'category_id' => $category_id,
-            'status' => $status
-        ];
-
-        if (save_post($data)) {
-            redirect('index.php');
-        } else {
-            $error = "保存文章失败。";
-        }
+    // Validate CSRF token
+    if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "无效的请求。";
     } else {
-        $error = "标题和内容不能为空。";
+        $title = trim($_POST['title']);
+        $slug = trim($_POST['slug']);
+        if (!$slug) {
+            $slug = strtolower(str_replace(' ', '-', $title));
+        }
+        $content = $_POST['content'];
+        $category_id = $_POST['category_id'];
+        $status = $_POST['status'];
+
+        if ($title && $content) {
+            $data = [
+                'id' => $id ? $id : null,
+                'title' => $title,
+                'slug' => $slug,
+                'content' => $content,
+                'category_id' => $category_id,
+                'status' => $status
+            ];
+
+            if (save_post($data)) {
+                redirect('index.php');
+            } else {
+                $error = "保存文章失败。";
+            }
+        } else {
+            $error = "标题和内容不能为空。";
+        }
     }
 }
 ?>
@@ -91,6 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
 
             <form method="post">
+                <?php echo csrf_field(); ?>
                 <div class="form-group">
                     <label>标题</label>
                     <input type="text" name="title" value="<?php echo h($post['title']); ?>" required>

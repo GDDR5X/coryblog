@@ -6,60 +6,89 @@ $message = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // 1. Initialize Users
-        if (!file_exists(FILE_USERS)) {
-            $users = [
-                [
-                    'id' => 1,
-                    'username' => 'admin',
-                    'password_hash' => password_hash('password', PASSWORD_DEFAULT),
-                    'email' => 'admin@example.com',
-                    'created_at' => date('Y-m-d H:i:s')
-                ]
-            ];
-            write_json(FILE_USERS, $users);
+        // 1. Initialize SQLite Database
+        $db = new PDO('sqlite:' . DB_FILE);
+        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        
+        // Create tables if not exists
+        $db->exec("
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                email TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        ");
+        
+        $db->exec("
+            CREATE TABLE IF NOT EXISTS categories (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                slug TEXT UNIQUE NOT NULL
+            )
+        ");
+        
+        $db->exec("
+            CREATE TABLE IF NOT EXISTS posts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                slug TEXT UNIQUE NOT NULL,
+                content TEXT NOT NULL,
+                category_id INTEGER DEFAULT 0,
+                status TEXT DEFAULT 'published',
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (category_id) REFERENCES categories(id)
+            )
+        ");
+        
+        $db->exec("
+            CREATE TABLE IF NOT EXISTS comments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                post_id TEXT NOT NULL,
+                author_name TEXT NOT NULL,
+                content TEXT NOT NULL,
+                is_approved INTEGER DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (post_id) REFERENCES posts(slug)
+            )
+        ");
+        
+        // Check if data already exists
+        $stmt = $db->query("SELECT COUNT(*) FROM users");
+        $user_count = $stmt->fetchColumn();
+        
+        if ($user_count == 0) {
+            // Initialize default user
+            $db->exec("INSERT INTO users (username, password_hash, email) VALUES ('admin', '" . password_hash('password', PASSWORD_DEFAULT) . "', 'admin@example.com')");
             $message .= "用户数据已初始化 (管理员: admin / password)<br>";
         } else {
-            $message .= "用户数据文件已存在。<br>";
+            $message .= "用户数据已存在。<br>";
         }
-
-        // 2. Initialize Categories
-        if (!file_exists(FILE_CATEGORIES)) {
-            $categories = [
-                ['id' => 1, 'name' => '未分类', 'slug' => 'uncategorized'],
-                ['id' => 2, 'name' => '动漫评论', 'slug' => 'anime-reviews'],
-                ['id' => 3, 'name' => '技术杂谈', 'slug' => 'tech']
-            ];
-            write_json(FILE_CATEGORIES, $categories);
+        
+        // Initialize categories if empty
+        $stmt = $db->query("SELECT COUNT(*) FROM categories");
+        if ($stmt->fetchColumn() == 0) {
+            $db->exec("INSERT INTO categories (name, slug) VALUES ('未分类', 'uncategorized')");
+            $db->exec("INSERT INTO categories (name, slug) VALUES ('动漫评论', 'anime-reviews')");
+            $db->exec("INSERT INTO categories (name, slug) VALUES ('技术杂谈', 'tech')");
             $message .= "分类数据已初始化。<br>";
+        } else {
+            $message .= "分类数据已存在。<br>";
         }
-
-        // 3. Initialize Posts
-        if (!file_exists(FILE_POSTS)) {
-            $posts = [
-                [
-                    'id' => 1,
-                    'title' => '你好，世界！',
-                    'slug' => 'hello-world',
-                    'content' => '欢迎来到你的新二次元博客！这是一篇由 JSON 存储驱动的测试文章。你可以在后台编辑或删除它。支持 **Markdown** 哦！',
-                    'category_id' => 1,
-                    'status' => 'published',
-                    'created_at' => date('Y-m-d H:i:s'),
-                    'updated_at' => date('Y-m-d H:i:s')
-                ]
-            ];
-            write_json(FILE_POSTS, $posts);
-            $message .= "文章数据已初始化。<br>";
+        
+        // Initialize default post if empty
+        $stmt = $db->query("SELECT COUNT(*) FROM posts");
+        if ($stmt->fetchColumn() == 0) {
+            $db->exec("INSERT INTO posts (title, slug, content, category_id, status) VALUES ('你好，世界！', 'hello-world', '欢迎来到你的新博客！这是一篇测试文章。', 1, 'published')");
+            $message .= "默认文章已初始化。<br>";
+        } else {
+            $message .= "文章数据已存在。<br>";
         }
-
-        // 4. Initialize Comments
-        if (!file_exists(FILE_COMMENTS)) {
-            write_json(FILE_COMMENTS, []);
-            $message .= "评论数据已初始化。<br>";
-        }
-
-        $message .= "<strong>安装成功！</strong> 数据已存储在 <code>data/*.json</code> 中。";
-
+        
+        $message .= "<strong>安装成功！</strong> 数据已存储在 <code>data/db/blog.db</code> 中。";
+        
     } catch (Exception $e) {
         $message = "错误: " . $e->getMessage();
     }
@@ -70,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>安装博客 (JSON版)</title>
+    <title>安装博客 (SQLite版)</title>
     <style>
         body { font-family: "Microsoft YaHei", sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f8ff; }
         .card { background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; max-width: 400px; width: 100%; }
@@ -83,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="card">
         <h1>博客安装程序</h1>
-        <p>点击下方按钮初始化 JSON 数据文件。</p>
+        <p>点击下方按钮初始化 SQLite 数据库文件。</p>
         <form method="post">
             <button type="submit">开始安装</button>
         </form>

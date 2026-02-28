@@ -1,0 +1,8 @@
+# Block direct access to Markdown files
+<FilesMatch "\.md$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Block directory listing
+Options -Indexes

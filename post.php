@@ -21,18 +21,23 @@ if (!$post || $post['status'] !== 'published') {
 
 // Handle Comment Submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_comment'])) {
-    $author = trim($_POST['author'] ?? '');
-    $content = trim($_POST['content'] ?? '');
-    $post_id = $_POST['post_id'] ?? 0;
-    
-    if ($author && $content && $post_id == $post['id']) {
-        if (add_comment($post_id, $author, $content)) {
-            $success = "评论已提交，等待审核！";
-        } else {
-            $error = "提交评论时出错。";
-        }
+    // Validate CSRF token
+    if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
+        $error = "无效的请求。";
     } else {
-        $error = "请填写所有字段。";
+        $author = trim($_POST['author'] ?? '');
+        $content = trim($_POST['content'] ?? '');
+        $post_id = $_POST['post_id'] ?? 0;
+        
+        if ($author && $content && $post_id == $post['id']) {
+            if (add_comment($post_id, $author, $content)) {
+                $success = "评论已提交，等待审核！";
+            } else {
+                $error = "提交评论时出错。";
+            }
+        } else {
+            $error = "请填写所有字段。";
+        }
     }
 }
 
@@ -95,6 +100,7 @@ require_once 'includes/header.php';
                 <div class="comment-form" style="margin-top: 20px; background: #f9f9f9; padding: 20px; border-radius: 10px;">
                     <h4>发表评论</h4>
                     <form method="post" action="">
+                        <?php echo csrf_field(); ?>
                         <input type="hidden" name="post_id" value="<?php echo $post['id']; ?>">
                         <div class="form-group">
                             <label>昵称</label>

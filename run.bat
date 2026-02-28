@@ -9,6 +9,6 @@ echo.
 
 start http://localhost:8000
 
-"D:\php8.3\php.exe" -S localhost:8000
+"D:\php8.3\php.exe" -S localhost:8000 router.php
 
 pause
