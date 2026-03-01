@@ -331,31 +331,281 @@ button[type="submit"]:hover {
 
 /* Code Blocks */
 .content-body pre {
+    position: relative;
+    margin-bottom: 1.5em;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9rem;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.content-body pre:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* PowerShell Style Code Block */
+.content-body pre[data-language="powershell"],
+.content-body pre[data-language="ps1"],
+.content-body pre[data-language="ps"] {
+    background: #012456;
+    border-left: 5px solid #00a8ff;
+}
+
+.content-body pre[data-language="powershell"] .code-header,
+.content-body pre[data-language="ps1"] .code-header,
+.content-body pre[data-language="ps"] .code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 35px;
+    background: linear-gradient(90deg, #00a8ff 0%, #007acc 100%);
+    color: white;
+    padding: 0 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    box-sizing: border-box;
+}
+
+.content-body pre[data-language="powershell"] .code-language,
+.content-body pre[data-language="ps1"] .code-language,
+.content-body pre[data-language="ps"] .code-language {
+    font-family: 'Consolas', monospace;
+}
+
+.content-body pre[data-language="powershell"] .code-content,
+.content-body pre[data-language="ps1"] .code-content,
+.content-body pre[data-language="ps"] .code-content {
+    padding: 0;
+    overflow-x: auto;
+}
+
+.content-body pre[data-language="powershell"] .code-content,
+.content-body pre[data-language="ps1"] .code-content,
+.content-body pre[data-language="ps"] .code-content {
+    display: flex;
+}
+
+.content-body pre[data-language="powershell"] .line-numbers,
+.content-body pre[data-language="ps1"] .line-numbers,
+.content-body pre[data-language="ps"] .line-numbers {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 15px 8px;
+    text-align: right;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.content-body pre[data-language="powershell"] .line-number,
+.content-body pre[data-language="ps1"] .line-number,
+.content-body pre[data-language="ps"] .line-number {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.content-body pre[data-language="powershell"] .code-content > code,
+.content-body pre[data-language="ps1"] .code-content > code,
+.content-body pre[data-language="ps"] .code-content > code {
+    padding: 15px;
+    flex-grow: 1;
+}
+
+/* PowerShell Token Colors */
+.content-body pre[data-language="powershell"] .token.keyword,
+.content-body pre[data-language="ps1"] .token.keyword,
+.content-body pre[data-language="ps"] .token.keyword {
+    color: #00a8ff;
+    font-weight: bold;
+}
+
+.content-body pre[data-language="powershell"] .token.command,
+.content-body pre[data-language="ps1"] .token.command,
+.content-body pre[data-language="ps"] .token.command {
+    color: #00bfff;
+    font-weight: bold;
+}
+
+.content-body pre[data-language="powershell"] .token.parameter,
+.content-body pre[data-language="ps1"] .token.parameter,
+.content-body pre[data-language="ps"] .token.parameter {
+    color: #ffbf00;
+}
+
+.content-body pre[data-language="powershell"] .token.string,
+.content-body pre[data-language="ps1"] .token.string,
+.content-body pre[data-language="ps"] .token.string {
+    color: #4caf50;
+}
+
+.content-body pre[data-language="powershell"] .token.variable,
+.content-body pre[data-language="ps1"] .token.variable,
+.content-body pre[data-language="ps"] .token.variable {
+    color: #ff69b4;
+}
+
+.content-body pre[data-language="powershell"] .token.number,
+.content-body pre[data-language="ps1"] .token.number,
+.content-body pre[data-language="ps"] .token.number {
+    color: #ff6b6b;
+}
+
+.content-body pre[data-language="powershell"] .token.comment,
+.content-body pre[data-language="ps1"] .token.comment,
+.content-body pre[data-language="ps"] .token.comment {
+    color: #6a9955;
+    font-style: italic;
+}
+
+.content-body pre[data-language="powershell"] .token.function-name,
+.content-body pre[data-language="ps1"] .token.function-name,
+.content-body pre[data-language="ps"] .token.function-name {
+    color: #00bfff;
+}
+
+.content-body pre[data-language="powershell"] .token.operator,
+.content-body pre[data-language="ps1"] .token.operator,
+.content-body pre[data-language="ps"] .token.operator {
+    color: #ff69b4;
+}
+
+.content-body pre[data-language="powershell"] .token.punctuation,
+.content-body pre[data-language="ps1"] .token.punctuation,
+.content-body pre[data-language="ps"] .token.punctuation {
+    color: #ffffff;
+}
+
+.content-body pre[data-language="powershell"] .token.cmdlet,
+.content-body pre[data-language="ps1"] .token.cmdlet,
+.content-body pre[data-language="ps"] .token.cmdlet {
+    color: #9b59b6;
+    font-weight: bold;
+}
+
+/* Generic Code Block (fallback) */
+.content-body pre {
     background: #2d2d2d;
     color: #f8f8f2;
-    padding: 15px;
-    border-radius: 10px;
-    overflow-x: auto;
-    margin-bottom: 1.5em;
-    font-family: 'Consolas', 'Monaco', monospace;
-    font-size: 0.9rem;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-}
-
-.content-body code {
-    font-family: 'Consolas', 'Monaco', monospace;
-    background: rgba(135, 206, 250, 0.2);
-    color: #d63384;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.9em;
-}
-
-.content-body pre code {
-    background: transparent;
-    color: inherit;
     padding: 0;
 }
+
+.content-body pre .code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 30px;
+    background: #444;
+    color: white;
+    padding: 0 15px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    box-sizing: border-box;
+}
+
+.content-body pre .code-language {
+    font-family: 'Consolas', monospace;
+}
+
+.content-body pre .code-content {
+    padding: 0;
+    overflow-x: auto;
+    display: flex;
+}
+
+.content-body pre .code-content.collapsed {
+    display: none;
+}
+
+.content-body pre .line-numbers {
+    display: flex;
+    flex-direction: column;
+    background: rgba(0, 0, 0, 0.1);
+    padding: 15px 8px;
+    text-align: right;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.content-body pre .line-number {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.content-body pre .code-content > code {
+    padding: 15px;
+    flex-grow: 1;
+}
+
+.content-body pre .code-header-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.content-body pre .copy-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 4px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: white;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.content-body pre .copy-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.content-body pre .copy-btn.copied {
+    background: #28a745;
+}
+
+.content-body pre .collapse-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: 4px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    color: white;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.content-body pre .collapse-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.05);
+}
+
+/* Token Colors for other languages */
+.token.keyword { color: #569cd6; }
+.token.function-name { color: #dcdcaa; }
+.token.string { color: #ce9178; }
+.token.number { color: #b5cea8; }
+.token.comment { color: #6a9955; font-style: italic; }
+.token.operator { color: #d4d4d4; }
+.token.punctuation { color: #d4d4d4; }
+.token.tag { color: #569cd6; }
+.token.attribute { color: #9cdcfe; }
+.token.variable { color: #9cdcfe; }
+.token.command { color: #dcdcaa; }
+.token.parameter { color: #9cdcfe; }
+.token.cmdlet { color: #b5cea8; }
 
 /* Images */
 .content-body img {

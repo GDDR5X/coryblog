@@ -38,7 +38,7 @@ class Parsedown {
             $lang = !empty($matches[1]) ? $matches[1] : 'text';
             $code = $matches[2];
             // Escape HTML in code block to prevent rendering
-            $code_blocks[$id] = '<pre><code class="language-' . $lang . '">' . htmlspecialchars($code) . '</code></pre>';
+            $code_blocks[$id] = '<pre data-language="' . $lang . '"><div class="code-header"><span class="code-language">' . htmlspecialchars($lang) . '</span><div class="code-header-actions"></div></div><div class="code-content"><div class="line-numbers"></div><code class="language-' . $lang . '">' . htmlspecialchars($code) . '</code></div></pre>';
             return $id;
         }, $text);
 
