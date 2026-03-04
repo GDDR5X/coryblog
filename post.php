@@ -138,5 +138,46 @@ require_once 'includes/header.php';
 <!-- Add TOC JS -->
 <script src="assets/js/toc.js"></script>
 <script src="assets/js/highlight.js"></script>
+
+<!-- Mermaid JS -->
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+    mermaid.initialize({startOnLoad: true});
+</script>
+
+<!-- KaTeX JS -->
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Render math in content body (for inline and block math)
+        var contentBody = document.querySelector('.content-body');
+        if (contentBody && typeof renderMathInElement !== 'undefined') {
+            renderMathInElement(contentBody, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ]
+            });
+        }
+        
+        // Also render math in math blocks (LaTeX code blocks)
+        var mathBlocks = document.querySelectorAll('.math-block');
+        mathBlocks.forEach(function(block) {
+            if (typeof renderMathInElement !== 'undefined') {
+                renderMathInElement(block, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false},
+                        {left: '\\(', right: '\\)', display: false},
+                        {left: '\\[', right: '\\]', display: true}
+                    ]
+                });
+            }
+        });
+    });
+</script>
 </div>
 <?php require_once 'includes/footer.php'; ?>

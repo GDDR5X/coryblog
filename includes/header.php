@@ -21,6 +21,12 @@ if (session_status() == PHP_SESSION_NONE) {
     
     <!-- Main CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- Mermaid CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.css">
+    
+    <!-- KaTeX CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 </head>
 <body>
     <header>
