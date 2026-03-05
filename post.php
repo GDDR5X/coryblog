@@ -2,6 +2,7 @@
 // post.php
 require_once 'includes/config.php';
 require_once 'includes/functions.php';
+session_start();
 
 $slug = $_GET['slug'] ?? '';
 if (!$slug) {
@@ -24,6 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_comment'])) {
     // Validate CSRF token
     if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
         $error = "无效的请求。";
+    } elseif (is_logged_in() && !is_email_verified()) {
+        $error = "请先验证您的邮箱，然后再发布评论。";
     } else {
         $author = trim($_POST['author'] ?? '');
         $content = trim($_POST['content'] ?? '');

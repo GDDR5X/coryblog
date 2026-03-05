@@ -6,6 +6,12 @@ require_once '../includes/functions.php';
 session_start();
 require_login();
 
+// Check if email is verified
+if (!is_email_verified()) {
+    $error = "请先验证您的邮箱，然后再发布文章。";
+    // You can redirect to profile page instead if preferred
+}
+
 $id = $_GET['id'] ?? 0;
 $post = [
     'id' => '',
@@ -31,6 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Validate CSRF token
     if (!validate_csrf_token($_POST['csrf_token'] ?? '')) {
         $error = "无效的请求。";
+    } elseif (!is_email_verified()) {
+        $error = "请先验证您的邮箱，然后再发布文章。";
     } else {
         $title = trim($_POST['title']);
         $slug = trim($_POST['slug']);

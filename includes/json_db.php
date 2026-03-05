@@ -71,6 +71,10 @@ function add_user($username, $password, $email = '') {
         'username' => $username,
         'password_hash' => password_hash($password, PASSWORD_DEFAULT),
         'email' => $email,
+        'email_verified' => false,
+        'email_verification_token' => '',
+        'email_verification_token_expires' => null,
+        'email_verified_at' => null,
         'created_at' => date('Y-m-d H:i:s')
     ];
     $users[] = $new_user;

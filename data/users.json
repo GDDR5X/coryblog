@@ -4,6 +4,10 @@
         "username": "admin",
         "password_hash": "$2y$10$i.aWX06ZxnIS0mP7xz2nFuE5KmXdawrGUXWrExKcs5kLYHxABJpZC",
         "email": "admin@example.com",
+        "email_verified": false,
+        "email_verification_token": "",
+        "email_verification_token_expires": null,
+        "email_verified_at": null,
         "created_at": "2026-02-26 12:10:47"
     },
     {
@@ -11,6 +15,21 @@
         "username": "cory",
         "password_hash": "$2y$10$MJjopEGhkk.G7gMbO5xKeuw06mqIXevX6AaC5H50DhsKjvuUVdCEy",
         "email": "1257158482@qq.com",
+        "email_verified": false,
+        "email_verification_token": "17e512e642449b931f635e006a71daf557cb53d158f99e848364746e34941d89",
+        "email_verification_token_expires": null,
+        "email_verified_at": null,
         "created_at": "2026-02-26 12:13:10"
+    },
+    {
+        "id": 3,
+        "username": "gap",
+        "password_hash": "$2y$10$b9EUT27DJTqoh5XBXa\/sM.9B0WQlryO5aOXuIcP2.DyThlNoUI1PW",
+        "email": "czhdqqyx6044@qq.com",
+        "email_verified": true,
+        "email_verification_token": "7e1b58eec1690670d89b9b26a498a4aeb0056628f06599ccc86748036ee159ae",
+        "email_verification_token_expires": "2026-03-06 14:35:02",
+        "email_verified_at": "2026-03-05 14:07:31",
+        "created_at": "2026-03-05 13:43:36"
     }
 ]

@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($user && password_verify($password, $user['password_hash'])) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
-                redirect('index.php');
+                redirect('../profile.php');
             } else {
                 $error = "用户名或密码错误。";
             }

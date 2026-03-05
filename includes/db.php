@@ -29,6 +29,10 @@ function init_db() {
                 username TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
                 email TEXT,
+                email_verified INTEGER DEFAULT 0,
+                email_verification_token TEXT,
+                email_verification_token_expires DATETIME,
+                email_verified_at DATETIME,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         ");
@@ -129,7 +133,7 @@ function get_user_by_id($id) {
 
 function add_user($username, $password, $email = '') {
     $db = get_db();
-    $stmt = $db->prepare("INSERT INTO users (username, password_hash, email) VALUES (?, ?, ?)");
+    $stmt = $db->prepare("INSERT INTO users (username, password_hash, email, email_verified, email_verification_token, email_verification_token_expires, email_verified_at) VALUES (?, ?, ?, 0, '', NULL, NULL)");
     try {
         $stmt->execute([$username, password_hash($password, PASSWORD_DEFAULT), $email]);
         return true;

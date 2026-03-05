@@ -43,7 +43,7 @@ if (session_status() == PHP_SESSION_NONE) {
                     <li><a href="archive.php">归档</a></li>
                     <?php if (isset($_SESSION['user_id'])): ?>
                         <li><a href="admin/index.php">控制台</a></li>
-                        <li><a href="admin/logout.php">退出</a></li>
+                        <li><a href="profile.php"><i class="fas fa-user-circle"></i> 个人中心</a></li>
                     <?php else: ?>
                         <li><a href="admin/login.php">登录</a></li>
                         <li><a href="admin/register.php">注册</a></li>
