@@ -406,10 +406,39 @@ button[type="submit"]:hover {
     margin-bottom: 1.5em;
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     font-size: 0.9rem;
-    border-radius: 12px;
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #1e1e1e;
+    border: 1px solid #333;
+}
+
+/* Ensure no scrollbars on collapsed code blocks */
+.content-body pre.collapsible:not(.expanded) {
+    overflow: hidden !important;
+}
+
+/* Hide WebKit scrollbars for collapsed code blocks */
+.content-body pre.collapsible:not(.expanded)::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.content-body pre.collapsible:not(.expanded) .code-content::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Hide scrollbar for Firefox */
+.content-body pre.collapsible:not(.expanded) {
+    scrollbar-width: none !important;
+}
+
+.content-body pre.collapsible:not(.expanded) .code-content {
+    scrollbar-width: none !important;
 }
 
 .content-body pre:hover {
@@ -431,14 +460,15 @@ button[type="submit"]:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 35px;
+    height: 22px;
     background: linear-gradient(90deg, #00a8ff 0%, #007acc 100%);
     color: white;
-    padding: 0 15px;
-    font-size: 0.8rem;
+    padding: 0 10px;
+    font-size: 0.7rem;
     font-weight: 600;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     box-sizing: border-box;
+    line-height: 1;
 }
 
 .content-body pre[data-language="powershell"] .code-language,
@@ -559,8 +589,7 @@ button[type="submit"]:hover {
 
 /* Generic Code Block (fallback) */
 .content-body pre {
-    background: #2d2d2d;
-    color: #f8f8f2;
+    background: #1e1e1e;
     padding: 0;
 }
 
@@ -568,24 +597,37 @@ button[type="submit"]:hover {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 30px;
-    background: #444;
-    color: white;
-    padding: 0 15px;
-    font-size: 0.75rem;
+    height: 28px;
+    background: #252526;
+    color: #cccccc;
+    padding: 0 12px;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
     box-sizing: border-box;
+    line-height: 1;
+    font-family: 'Segoe UI', sans-serif;
+    letter-spacing: 0.5px;
 }
 
 .content-body pre .code-language {
     font-family: 'Consolas', monospace;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 1px;
 }
 
 .content-body pre .code-content {
     padding: 0;
     overflow-x: auto;
     display: flex;
+}
+
+/* Override for collapsible code blocks - no scroll when collapsed */
+.content-body pre.collapsible:not(.expanded) .code-content {
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
 }
 
 .content-body pre .code-content.collapsed {
@@ -595,23 +637,31 @@ button[type="submit"]:hover {
 .content-body pre .line-numbers {
     display: flex;
     flex-direction: column;
-    background: rgba(0, 0, 0, 0.1);
-    padding: 15px 8px;
+    background: #1e1e1e;
+    padding: 12px 8px;
     text-align: right;
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid #333;
     user-select: none;
     flex-shrink: 0;
+    min-width: 40px;
 }
 
 .content-body pre .line-number {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.85rem;
+    color: #606060;
+    font-size: 0.9rem;
     line-height: 1.6;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    height: 1.6em;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
 
-.content-body pre .code-content > code {
-    padding: 15px;
+.content-body pre .code-content > code:not(.hljs) {
+    padding: 12px 15px;
     flex-grow: 1;
+    line-height: 1.6;
+    font-size: 0.9rem;
 }
 
 .content-body pre .code-header-actions {
@@ -619,47 +669,71 @@ button[type="submit"]:hover {
     gap: 5px;
 }
 
-.content-body pre .copy-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border: none;
+/* Code Block Buttons (Copy & Toggle) */
+.content-body pre .code-btn {
+    background: transparent;
+    border: 1px solid #444;
     border-radius: 4px;
-    padding: 4px 10px;
+    width: 28px;
+    height: 20px;
     cursor: pointer;
-    font-size: 0.75rem;
-    color: white;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(5px);
+    font-size: 0.7rem;
+    color: #cccccc;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
-    gap: 5px;
+    justify-content: center;
+    padding: 0;
 }
 
-.content-body pre .copy-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
-    transform: scale(1.05);
+.content-body pre .code-btn:hover {
+    background: #333;
+    border-color: #555;
+    color: #ffffff;
+    transform: none;
 }
 
-.content-body pre .copy-btn.copied {
-    background: #28a745;
-}
-
-.content-body pre .collapse-btn {
-    background: rgba(255, 255, 255, 0.15);
-    border: none;
-    border-radius: 4px;
-    padding: 4px 10px;
-    cursor: pointer;
-    font-size: 0.75rem;
+.content-body pre .code-btn.copied {
+    background: #0e639c;
+    border-color: #1177bb;
     color: white;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(5px);
-    display: flex;
-    align-items: center;
-    gap: 5px;
 }
 
-.content-body pre .collapse-btn:hover {
-    background: rgba(255, 255, 255, 0.25);
+.content-body pre .code-btn i {
+    font-size: 0.7rem;
+}
+
+/* Collapsible code block styles */
+.content-body pre.collapsible .code-content {
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+}
+
+.content-body pre.collapsible.expanded .code-content {
+    overflow: auto !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    max-height: none !important;
+}
+
+.content-body pre.collapsible.expanded .toggle-btn i {
+    transform: rotate(180deg);
+}
+
+.content-body pre .toggle-btn i {
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth fade effect for collapsed code blocks */
+.content-body pre.collapsible:not(.expanded) .code-content {
+    opacity: 0.95;
+}
+
+.content-body pre.collapsible.expanded .code-content {
+    opacity: 1;
+}
     transform: scale(1.05);
 }
 
@@ -700,23 +774,6 @@ button[type="submit"]:hover {
     padding: 2px 4px;
     background: rgba(135, 206, 250, 0.1);
     border-radius: 4px;
-}
-
-/* ABC Music Notation Styling */
-.content-body .abc-music {
-    background: #f8f9fa;
-    border: 2px solid var(--accent-color);
-    border-radius: 12px;
-    padding: 20px;
-    margin: 20px 0;
-    text-align: center;
-    overflow-x: auto;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.content-body .abc-music svg {
-    max-width: 100%;
-    height: auto;
 }
 
 /* Token Colors for other languages */
@@ -800,4 +857,188 @@ button[type="submit"]:hover {
 
 .content-body tr:hover {
     background-color: #f0f8ff;
+}
+
+/* Code Toggle Styles for HTML/CSS/JS Preview */
+.code-toggle {
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin: 20px 0;
+    box-shadow: var(--shadow);
+}
+
+.code-toggle-header {
+    background: #444;
+    color: white;
+    padding: 6px 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 20px;
+    box-sizing: border-box;
+}
+
+.code-toggle-title {
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+}
+
+.code-toggle-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.code-toggle-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: all 0.3s ease;
+}
+
+.code-toggle-btn.active {
+    background: var(--primary-color);
+}
+
+.code-toggle-content {
+    background: #1e1e1e;
+    color: white;
+    padding: 0;
+}
+
+.code-toggle-content pre {
+    margin: 0;
+    border-radius: 0;
+}
+
+.code-toggle-content .code-content {
+    padding: 15px;
+}
+
+.code-toggle-content .preview-content {
+    padding: 15px;
+    background: #f8f9fa;
+    color: #333;
+    min-height: 100px;
+}
+
+/* Code Toggle Token Colors */
+.code-toggle .hljs-keyword { color: #569cd6; }
+.code-toggle .hljs-function { color: #dcdcaa; }
+.code-toggle .hljs-string { color: #ce9178; }
+.code-toggle .hljs-number { color: #b5cea8; }
+.code-toggle .hljs-comment { color: #6a9955; font-style: italic; }
+.code-toggle .hljs-operator { color: #d4d4d4; }
+.code-toggle .hljs-punctuation { color: #d4d4d4; }
+.code-toggle .hljs-tag { color: #569cd6; }
+.code-toggle .hljs-attr { color: #9cdcfe; }
+.code-toggle .hljs-variable { color: #9cdcfe; }
+.code-toggle .hljs-title { color: #dcdcaa; }
+.code-toggle .hljs-params { color: #9cdcfe; }
+
+/* Highlight.js Overrides */
+.content-body pre code.hljs {
+    padding: 12px 15px;
+    background: transparent;
+    line-height: 1.6;
+    font-size: 0.9rem;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+/* Enhanced syntax highlighting colors */
+.content-body pre code.hljs .hljs-variable {
+    color: #66d9ef !important;
+}
+
+.content-body pre code.hljs .hljs-number {
+    color: #ae81ff !important;
+}
+
+.content-body pre code.hljs .hljs-operator {
+    color: #f8f8f2 !important;
+}
+
+.content-body pre code.hljs .hljs-punctuation {
+    color: #f8f8f2 !important;
+}
+
+.content-body pre code.hljs .hljs-function {
+    color: #a6e22e !important;
+    font-weight: bold !important;
+}
+
+.content-body pre code.hljs .hljs-class {
+    color: #a6e22e !important;
+    font-weight: bold !important;
+}
+
+.content-body pre code.hljs .hljs-title {
+    color: #a6e22e !important;
+}
+
+/* Ensure code content has proper padding, but don't override Highlight.js styles */
+.content-body pre .code-content > code:not(.hljs) {
+    padding: 15px;
+    display: block;
+}
+
+/* Ensure Highlight.js styles are applied correctly */
+.content-body pre code.hljs {
+    background: transparent !important;
+}
+
+/* Hide scrollbars on code elements in collapsed blocks */
+.content-body pre.collapsible:not(.expanded) code.hljs {
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    overflow-y: hidden !important;
+}
+
+/* Hide WebKit scrollbars on code elements in collapsed blocks */
+.content-body pre.collapsible:not(.expanded) code.hljs::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* Hide Firefox scrollbar on code elements in collapsed blocks */
+.content-body pre.collapsible:not(.expanded) code.hljs {
+    scrollbar-width: none !important;
+}
+
+/* PowerShell specific styles with Highlight.js */
+.content-body pre[data-language="powershell"] .hljs-keyword,
+.content-body pre[data-language="ps1"] .hljs-keyword,
+.content-body pre[data-language="ps"] .hljs-keyword {
+    color: #00a8ff;
+    font-weight: bold;
+}
+
+.content-body pre[data-language="powershell"] .hljs-string,
+.content-body pre[data-language="ps1"] .hljs-string,
+.content-body pre[data-language="ps"] .hljs-string {
+    color: #00ff00;
+}
+
+.content-body pre[data-language="powershell"] .hljs-variable,
+.content-body pre[data-language="ps1"] .hljs-variable,
+.content-body pre[data-language="ps"] .hljs-variable {
+    color: #ffcc00;
+}
+
+.content-body pre[data-language="powershell"] .hljs-number,
+.content-body pre[data-language="ps1"] .hljs-number,
+.content-body pre[data-language="ps"] .hljs-number {
+    color: #ff6600;
+}
+
+.content-body pre[data-language="powershell"] .hljs-comment,
+.content-body pre[data-language="ps1"] .hljs-comment,
+.content-body pre[data-language="ps"] .hljs-comment {
+    color: #888888;
+    font-style: italic;
 }

@@ -137,7 +137,10 @@ require_once 'includes/header.php';
 
 <!-- Add TOC JS -->
 <script src="assets/js/toc.js"></script>
-<script src="assets/js/highlight.js"></script>
+
+<!-- Highlight.js -->
+<script src="assets/libs/highlight.min.js"></script>
+<script src="assets/libs/powershell.min.js"></script>
 
 <!-- Mermaid JS -->
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
@@ -175,6 +178,112 @@ require_once 'includes/header.php';
                         {left: '\\[', right: '\\]', display: true}
                     ]
                 });
+            }
+        });
+    });
+</script>
+
+<!-- Code Toggle JS for HTML/CSS/JS Preview -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.code-toggle-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const toggleContainer = this.closest('.code-toggle');
+                const mode = this.getAttribute('data-mode');
+                
+                // Update active button
+                toggleContainer.querySelectorAll('.code-toggle-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // Show appropriate content
+                if (mode === 'code') {
+                    toggleContainer.querySelector('.code-content').style.display = 'block';
+                    toggleContainer.querySelector('.preview-content').style.display = 'none';
+                } else {
+                    toggleContainer.querySelector('.code-content').style.display = 'none';
+                    toggleContainer.querySelector('.preview-content').style.display = 'block';
+                }
+            });
+        });
+    });
+</script>
+
+<!-- Highlight.js Initialization -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Highlight.js loaded:', typeof hljs !== 'undefined');
+        console.log('Highlight.js version:', hljs.version);
+        
+        // 初始化代码高亮
+        hljs.highlightAll();
+        
+        // 为带预览的代码块添加高亮
+        document.querySelectorAll('.code-toggle .code-content pre code').forEach((block) => {
+            hljs.highlightElement(block);
+        });
+        
+        // 为复杂结构的代码块添加高亮（处理 Parsedown 生成的结构）
+        document.querySelectorAll('pre[data-language] code').forEach((block) => {
+            if (!block.classList.contains('hljs')) {
+                hljs.highlightElement(block);
+            }
+        });
+        
+        console.log('Code blocks highlighted:', document.querySelectorAll('code.hljs').length);
+        
+        // 代码块复制功能
+        document.querySelectorAll('.copy-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const pre = this.closest('pre');
+                const code = pre.querySelector('code');
+                const text = code.textContent;
+                
+                navigator.clipboard.writeText(text).then(() => {
+                    const icon = this.querySelector('i');
+                    icon.className = 'fas fa-check';
+                    this.classList.add('copied');
+                    
+                    setTimeout(() => {
+                        icon.className = 'fas fa-copy';
+                        this.classList.remove('copied');
+                    }, 2000);
+                }).catch(err => {
+                    console.error('复制失败:', err);
+                });
+            });
+        });
+        
+        // 代码块折叠/展开功能
+        document.querySelectorAll('.toggle-btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const pre = this.closest('pre');
+                pre.classList.toggle('expanded');
+                
+                const icon = this.querySelector('i');
+                if (pre.classList.contains('expanded')) {
+                    icon.className = 'fas fa-chevron-up';
+                    this.title = '折叠';
+                } else {
+                    icon.className = 'fas fa-chevron-down';
+                    this.title = '展开';
+                }
+            });
+        });
+        
+        // 为超过10行的代码块添加行号
+        document.querySelectorAll('pre[data-lines]').forEach(pre => {
+            const lineCount = parseInt(pre.dataset.lines);
+            const lineNumbers = pre.querySelector('.line-numbers');
+            if (lineNumbers && lineCount > 0) {
+                let numbersHtml = '';
+                for (let i = 1; i <= lineCount; i++) {
+                    numbersHtml += `<div class="line-number">${i}</div>`;
+                }
+                lineNumbers.innerHTML = numbersHtml;
             }
         });
     });

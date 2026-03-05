@@ -38,11 +38,54 @@ class Parsedown {
         $text = str_replace(["\r\n", "\r"], "\n", $text);
         $text = trim($text);
         
-        // 0.1. Save LaTeX blocks before any processing to prevent special character issues
-        $latex_blocks = [];
-        $text = preg_replace_callback('/^```(latex|math)\s*\n(.*?)```/ms', function($matches) use (&$latex_blocks) {
-            $id = uniqid('latex-');
-            $latex_blocks[$id] = '<div class="math-block">' . $matches[2] . '</div>';
+        // 0.1. Save HTML/CSS/JS blocks before any processing
+        // ```html, ```css, ```js - Render directly with toggle between code and preview
+        $html_blocks = [];
+        $text = preg_replace_callback('/^```html\s*\n(.*?)```/ms', function($matches) use (&$html_blocks) {
+            $id = uniqid('html_');
+            $code = htmlspecialchars($matches[1]);
+            $preview = $matches[1];
+            $html_blocks[$id] = '<div class="code-toggle"><div class="code-toggle-header"><span class="code-toggle-title">HTML</span><div class="code-toggle-buttons"><button class="code-toggle-btn active" data-mode="code">代码</button><button class="code-toggle-btn" data-mode="preview">预览</button></div></div><div class="code-toggle-content code-content"><pre><code class="language-html">' . $code . '</code></pre></div><div class="code-toggle-content preview-content" style="display: none;">' . $preview . '</div></div>';
+            return $id;
+        }, $text);
+        
+        $css_blocks = [];
+        $text = preg_replace_callback('/^```css\s*\n(.*?)```/ms', function($matches) use (&$css_blocks) {
+            $id = uniqid('css_');
+            $code = htmlspecialchars($matches[1]);
+            $preview = '<style>' . $matches[1] . '</style>';
+            $css_blocks[$id] = '<div class="code-toggle"><div class="code-toggle-header"><span class="code-toggle-title">CSS</span><div class="code-toggle-buttons"><button class="code-toggle-btn active" data-mode="code">代码</button><button class="code-toggle-btn" data-mode="preview">预览</button></div></div><div class="code-toggle-content code-content"><pre><code class="language-css">' . $code . '</code></pre></div><div class="code-toggle-content preview-content" style="display: none;">' . $preview . '</div></div>';
+            return $id;
+        }, $text);
+        
+        $js_blocks = [];
+        $text = preg_replace_callback('/^```javascript\s*\n(.*?)```/ms', function($matches) use (&$js_blocks) {
+            $id = uniqid('js_');
+            $code = htmlspecialchars($matches[1]);
+            $preview = '<script>' . $matches[1] . '</script>';
+            $js_blocks[$id] = '<div class="code-toggle"><div class="code-toggle-header"><span class="code-toggle-title">JavaScript</span><div class="code-toggle-buttons"><button class="code-toggle-btn active" data-mode="code">代码</button><button class="code-toggle-btn" data-mode="preview">预览</button></div></div><div class="code-toggle-content code-content"><pre><code class="language-javascript">' . $code . '</code></pre></div><div class="code-toggle-content preview-content" style="display: none;">' . $preview . '</div></div>';
+            return $id;
+        }, $text);
+        
+        // Save code blocks for syntax highlighting
+        $html_code_blocks = [];
+        $text = preg_replace_callback('/^```html-code\s*\n(.*?)```/ms', function($matches) use (&$html_code_blocks) {
+            $id = uniqid('html_code_');
+            $html_code_blocks[$id] = '<pre><code class="language-html">' . htmlspecialchars($matches[1]) . '</code></pre>';
+            return $id;
+        }, $text);
+        
+        $css_code_blocks = [];
+        $text = preg_replace_callback('/^```css-code\s*\n(.*?)```/ms', function($matches) use (&$css_code_blocks) {
+            $id = uniqid('css_code_');
+            $css_code_blocks[$id] = '<pre><code class="language-css">' . htmlspecialchars($matches[1]) . '</code></pre>';
+            return $id;
+        }, $text);
+        
+        $js_code_blocks = [];
+        $text = preg_replace_callback('/^```js-code\s*\n(.*?)```/ms', function($matches) use (&$js_code_blocks) {
+            $id = uniqid('js_code_');
+            $js_code_blocks[$id] = '<pre><code class="language-javascript">' . htmlspecialchars($matches[1]) . '</code></pre>';
             return $id;
         }, $text);
         
@@ -60,27 +103,7 @@ class Parsedown {
             return $id;
         }, $text);
 
-        // 1. Headers
-        $text = preg_replace('/^# (.*?)$/m', '<h1>$1</h1>', $text);
-        $text = preg_replace('/^## (.*?)$/m', '<h2>$1</h2>', $text);
-        $text = preg_replace('/^### (.*?)$/m', '<h3>$1</h3>', $text);
-        $text = preg_replace('/^#### (.*?)$/m', '<h4>$1</h4>', $text);
-        $text = preg_replace('/^##### (.*?)$/m', '<h5>$1</h5>', $text);
-        $text = preg_replace('/^###### (.*?)$/m', '<h6>$1</h6>', $text);
-
-        // 2. Bold and Italic
-        $text = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $text);
-        $text = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $text);
-        $text = preg_replace('/__(.*?)__/', '<strong>$1</strong>', $text);
-        $text = preg_replace('/_(.*?)_/', '<em>$1</em>', $text);
-
-        // 3. Images (before links to avoid conflict)
-        $text = preg_replace('/!\[(.*?)\]\((.*?)\)/', '<img src="$2" alt="$1">', $text);
-
-        // 4. Links
-        $text = preg_replace('/\[(.*?)\]\((.*?)\)/', '<a href="$2" target="_blank">$1</a>', $text);
-
-        // 5. Code Blocks (Fenced)
+        // 1. Code Blocks (Fenced) - Must be processed BEFORE headers to avoid # in code being parsed as headers
         // Improved regex to handle optional language and newlines better
         $code_blocks = [];
         $text = preg_replace_callback('/^```(\w+)?\s*\n(.*?)```/ms', function($matches) use (&$code_blocks, &$self) {
@@ -99,10 +122,40 @@ class Parsedown {
                 return $id;
             }
             
-            // Regular code block
-            $code_blocks[$id] = '<pre data-language="' . $lang . '"><div class="code-header"><span class="code-language">' . htmlspecialchars($lang) . '</span><div class="code-header-actions"></div></div><div class="code-content"><div class="line-numbers"></div><code class="language-' . $lang . '">' . htmlspecialchars($code) . '</code></div></pre>';
+            // Note: LaTeX blocks will be handled by KaTeX's auto-render in post.php
+            if ($lang === 'latex' || $lang === 'math') {
+                $code_blocks[$id] = '<div class="math-block">' . $code . '</div>';
+                return $id;
+            }
+            
+            // Regular code block with copy and collapse buttons
+            $lineCount = substr_count($code, "\n") + 1;
+            $collapseClass = $lineCount > 10 ? ' collapsible' : '';
+            $collapsedStyle = $lineCount > 10 ? ' style="max-height: 200px;"' : '';
+            
+            $code_blocks[$id] = '<pre data-language="' . $lang . '" data-lines="' . $lineCount . '" class="code-block' . $collapseClass . '"><div class="code-header"><span class="code-language">' . htmlspecialchars($lang) . '</span><div class="code-header-actions"><button class="code-btn copy-btn" title="复制"><i class="fas fa-copy"></i></button>' . ($lineCount > 10 ? '<button class="code-btn toggle-btn" title="展开/折叠"><i class="fas fa-chevron-down"></i></button>' : '') . '</div></div><div class="code-content"' . $collapsedStyle . '><div class="line-numbers"></div><code class="language-' . $lang . '">' . htmlspecialchars($code) . '</code></div></pre>';
             return $id;
         }, $text);
+
+        // 2. Headers
+        $text = preg_replace('/^# (.*?)$/m', '<h1>$1</h1>', $text);
+        $text = preg_replace('/^## (.*?)$/m', '<h2>$1</h2>', $text);
+        $text = preg_replace('/^### (.*?)$/m', '<h3>$1</h3>', $text);
+        $text = preg_replace('/^#### (.*?)$/m', '<h4>$1</h4>', $text);
+        $text = preg_replace('/^##### (.*?)$/m', '<h5>$1</h5>', $text);
+        $text = preg_replace('/^###### (.*?)$/m', '<h6>$1</h6>', $text);
+
+        // 3. Bold and Italic
+        $text = preg_replace('/\*\*(.*?)\*\*/', '<strong>$1</strong>', $text);
+        $text = preg_replace('/\*(.*?)\*/', '<em>$1</em>', $text);
+        $text = preg_replace('/__(.*?)__/', '<strong>$1</strong>', $text);
+        $text = preg_replace('/_(.*?)_/', '<em>$1</em>', $text);
+
+        // 4. Images (before links to avoid conflict)
+        $text = preg_replace('/!\[(.*?)\]\((.*?)\)/', '<img src="$2" alt="$1">', $text);
+
+        // 5. Links
+        $text = preg_replace('/\[(.*?)\]\((.*?)\)/', '<a href="$2" target="_blank">$1</a>', $text);
 
         // Inline Code
         $text = preg_replace('/`(.*?)`/', '<code>$1</code>', $text);
@@ -207,8 +260,18 @@ class Parsedown {
             $new_text = str_replace($id, $block, $new_text);
         }
         
-        // Restore LaTeX blocks
-        foreach ($latex_blocks as $id => $block) {
+        // Restore HTML blocks
+        foreach ($html_blocks as $id => $block) {
+            $new_text = str_replace($id, $block, $new_text);
+        }
+        
+        // Restore CSS blocks
+        foreach ($css_blocks as $id => $block) {
+            $new_text = str_replace($id, $block, $new_text);
+        }
+        
+        // Restore JS blocks
+        foreach ($js_blocks as $id => $block) {
             $new_text = str_replace($id, $block, $new_text);
         }
         

@@ -13,5 +13,15 @@
         "id": 3,
         "name": "Tech",
         "slug": "tech"
+    },
+    {
+        "id": 4,
+        "name": "Gaming",
+        "slug": "gaming"
+    },
+    {
+        "id": 5,
+        "name": "Music",
+        "slug": "music"
     }
 ]

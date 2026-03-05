@@ -1,9 +1,8 @@
 ---
-title: Markdown测试 - 包含Mermaid图表和LaTeX公式
-slug: markdown-test
+title: 测试文章
+created_at: 2026-03-04 13:53:49
 category_id: 1
 status: published
-created_at: 2026-03-04
 ---
 
 # Markdown测试文档
@@ -60,6 +59,22 @@ def hello_world():
 ```javascript
 const greeting = "Hello, World!";
 console.log(greeting);
+```
+
+```powershell
+# PowerShell 示例
+Get-Process | Where-Object { $_.CPU -gt 100 }
+
+function Get-SystemInfo {
+    param(
+        [string]$ComputerName = $env:COMPUTERNAME
+    )
+    
+    Get-WmiObject -Class Win32_ComputerSystem -ComputerName $ComputerName
+}
+
+# 调用函数
+Get-SystemInfo
 ```
 
 ## 2. Mermaid图表测试
@@ -226,30 +241,35 @@ $$A = \pi r^2$$
 | 质能方程 | $E = mc^2$ | 质量与能量转换 |
 | 牛顿第二定律 | $F = ma$ | 力与加速度关系 |
 
-## 6. 注意事项
+```html
+<div class="interactive-widget">
+    <h3>交互小部件</h3>
+    <button onclick="alert('点击成功！')">点击我</button>
+</div>
+```
 
-1. Mermaid图表使用 ```mermaid 代码块
-2. LaTeX公式使用 ```latex 或 ```math 代码块
-3. 行内公式使用 $...$ 包裹
-4. 所有语法都支持在同一个文档中混合使用
+```css
+.interactive-widget {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+.interactive-widget button {
+    background: white;
+    color: #667eea;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+.interactive-widget button:hover {
+    transform: scale(1.05);
+}
+```
 
-## 7. 音乐乐谱说明
-
-由于ABCjs库已经从GitHub删除，目前暂时无法在网页中直接显示ABC格式的乐谱。
-
-### 可选方案：
-
-1. **使用MuseScore**：将乐谱导出为MuseScore格式（.mscz）或图片
-2. **使用在线编辑器**：使用Noteflight等在线乐谱编辑器
-3. **手动转换**：将乐谱转换为SVG格式后嵌入
-
-### 示例（使用MuseScore）：
-
-如果您想展示乐谱，可以：
-- 使用MuseScore软件编辑乐谱
-- 导出为图片（PNG/JPG）
-- 在文章中插入图片
-
----
-
-**最后更新时间**: 2026-03-04
+```javascript
+console.log('交互小部件已加载');
+```

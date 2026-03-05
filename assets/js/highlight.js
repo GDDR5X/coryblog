@@ -11,8 +11,25 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function highlightAll() {
-    const codes = document.querySelectorAll('pre code');
+    // 处理普通代码块 (pre > code)，排除 .code-toggle 中的
+    const codes = document.querySelectorAll('pre:not(.code-toggle pre) code');
     codes.forEach(code => {
+        const classes = code.className;
+        const langMatch = classes.match(/language-(\w+)/);
+        const lang = langMatch ? langMatch[1] : 'text';
+        
+        // Add data-language attribute to parent pre for styling
+        code.parentElement.setAttribute('data-language', lang);
+
+        if (lang === 'text') return;
+
+        const text = code.textContent;
+        code.innerHTML = highlight(text, lang);
+    });
+    
+    // 处理带预览切换的代码块 (.code-toggle .code-content pre code)
+    const toggleCodes = document.querySelectorAll('.code-toggle .code-content pre code');
+    toggleCodes.forEach(code => {
         const classes = code.className;
         const langMatch = classes.match(/language-(\w+)/);
         const lang = langMatch ? langMatch[1] : 'text';
@@ -146,6 +163,88 @@ function highlight(text, lang) {
     let output = '';
     let i = 0;
     
+    // 语言特定的关键词定义
+    const languageKeywords = {
+        'javascript': new Set([
+            'function', 'return', 'if', 'else', 'for', 'while', 'var', 'let', 'const', 
+            'class', 'import', 'from', 'export', 'default', 'try', 'catch', 'finally',
+            'async', 'await', 'new', 'this', 'extends', 'super', 'static', 'get', 'set',
+            'typeof', 'instanceof', 'in', 'of', 'void', 'delete', 'yield', 'throw',
+            'true', 'false', 'null', 'undefined', 'NaN', 'Infinity',
+            'console', 'document', 'window', 'Math', 'JSON', 'Array', 'Object', 'String',
+            'Number', 'Boolean', 'Date', 'RegExp', 'Promise', 'Set', 'Map', 'WeakMap',
+            'alert', 'confirm', 'prompt', 'setTimeout', 'setInterval', 'clearTimeout',
+            'addEventListener', 'removeEventListener', 'querySelector', 'querySelectorAll',
+            'getElementById', 'getElementsByClassName', 'getElementsByTagName',
+            'createElement', 'appendChild', 'removeChild', 'innerHTML', 'textContent',
+            'style', 'classList', 'add', 'remove', 'toggle', 'contains'
+        ]),
+        'python': new Set([
+            'def', 'return', 'if', 'elif', 'else', 'for', 'while', 'try', 'except',
+            'finally', 'with', 'as', 'import', 'from', 'class', 'pass', 'break',
+            'continue', 'lambda', 'yield', 'raise', 'assert', 'del', 'global',
+            'nonlocal', 'print', 'input', 'len', 'range', 'enumerate', 'zip',
+            'map', 'filter', 'reduce', 'sum', 'min', 'max', 'abs', 'round',
+            'int', 'float', 'str', 'list', 'dict', 'tuple', 'set', 'bool',
+            'True', 'False', 'None', 'and', 'or', 'not', 'in', 'is', 'self',
+            'super', 'init', 'main', 'name', 'doc', 'repr', 'str', 'call'
+        ]),
+        'php': new Set([
+            'function', 'return', 'if', 'else', 'elseif', 'for', 'while', 'foreach',
+            'try', 'catch', 'finally', 'throw', 'class', 'public', 'private',
+            'protected', 'static', 'abstract', 'final', 'interface', 'trait',
+            'namespace', 'use', 'extends', 'implements', 'new', 'this', 'self',
+            'parent', 'echo', 'print', 'var', 'const', 'define', 'include',
+            'include_once', 'require', 'require_once', 'array', 'isset', 'unset',
+            'empty', 'null', 'true', 'false', 'global', 'static', 'and', 'or',
+            'xor', 'as', 'switch', 'case', 'default', 'break', 'continue',
+            'goto', 'die', 'exit', 'eval', 'isset', 'unset', 'list', 'each'
+        ]),
+        'html': new Set([
+            'div', 'span', 'p', 'a', 'img', 'script', 'style', 'link', 'meta',
+            'head', 'body', 'html', 'title', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+            'ul', 'ol', 'li', 'table', 'tr', 'td', 'th', 'thead', 'tbody',
+            'form', 'input', 'button', 'select', 'option', 'textarea', 'label',
+            'br', 'hr', 'strong', 'em', 'b', 'i', 'u', 's', 'strike', 'sub',
+            'sup', 'code', 'pre', 'blockquote', 'iframe', 'nav', 'header',
+            'footer', 'section', 'article', 'aside', 'main', 'figure', 'figcaption'
+        ]),
+        'css': new Set([
+            'color', 'background', 'background-color', 'background-image',
+            'font', 'font-size', 'font-family', 'font-weight', 'font-style',
+            'margin', 'padding', 'border', 'width', 'height', 'display',
+            'position', 'top', 'left', 'right', 'bottom', 'float', 'clear',
+            'overflow', 'visibility', 'z-index', 'opacity', 'cursor',
+            'text-align', 'text-decoration', 'text-transform', 'line-height',
+            'vertical-align', 'white-space', 'word-wrap', 'word-break',
+            'box-shadow', 'text-shadow', 'border-radius', 'transform',
+            'transition', 'animation', 'flex', 'grid', 'justify-content',
+            'align-items', 'flex-direction', 'flex-wrap', 'gap', 'media',
+            'keyframes', 'import', 'charset', 'namespace', 'supports',
+            'hover', 'active', 'focus', 'visited', 'first-child', 'last-child',
+            'nth-child', 'not', 'is', 'where', 'has', 'before', 'after'
+        ]),
+        'sql': new Set([
+            'SELECT', 'FROM', 'WHERE', 'INSERT', 'INTO', 'VALUES', 'UPDATE',
+            'SET', 'DELETE', 'CREATE', 'TABLE', 'ALTER', 'DROP', 'INDEX',
+            'JOIN', 'INNER', 'LEFT', 'RIGHT', 'FULL', 'OUTER', 'ON', 'AS',
+            'AND', 'OR', 'NOT', 'NULL', 'IS', 'IN', 'BETWEEN', 'LIKE',
+            'GROUP', 'BY', 'ORDER', 'HAVING', 'LIMIT', 'OFFSET', 'UNION',
+            'ALL', 'DISTINCT', 'COUNT', 'SUM', 'AVG', 'MAX', 'MIN',
+            'PRIMARY', 'KEY', 'FOREIGN', 'REFERENCES', 'UNIQUE', 'CHECK',
+            'DEFAULT', 'AUTO_INCREMENT', 'CASCADE', 'RESTRICT'
+        ]),
+        'bash': new Set([
+            'if', 'then', 'else', 'elif', 'fi', 'for', 'while', 'do', 'done',
+            'case', 'esac', 'in', 'function', 'return', 'exit', 'break',
+            'continue', 'shift', 'source', 'export', 'unset', 'readonly',
+            'local', 'declare', 'typeset', 'echo', 'printf', 'read', 'test',
+            'cd', 'pwd', 'ls', 'cat', 'grep', 'sed', 'awk', 'cut', 'sort',
+            'uniq', 'wc', 'head', 'tail', 'find', 'xargs', 'chmod', 'chown',
+            'mkdir', 'rm', 'cp', 'mv', 'touch', 'tar', 'gzip', 'gunzip'
+        ])
+    };
+    
     // PowerShell specific definitions
     const powershellKeywords = new Set([
         'if', 'else', 'elseif', 'for', 'foreach', 'while', 'do', 'until', 
@@ -172,8 +271,8 @@ function highlight(text, lang) {
         'Unmount', 'Unregister', 'Update', 'Use', 'Wait', 'Watch', 'Write'
     ]);
     
-    // Definitions
-    const keywords = new Set([
+    // 通用关键词（作为后备）
+    const genericKeywords = new Set([
         'function', 'return', 'if', 'else', 'for', 'while', 'var', 'let', 'const', 
         'class', 'import', 'from', 'try', 'catch', 'async', 'await', 'echo', 
         'public', 'private', 'protected', 'static', 'new', 'this', 'extends', 
@@ -182,6 +281,9 @@ function highlight(text, lang) {
         'foreach', 'as', 'switch', 'case', 'break', 'default', 'continue',
         'struct', 'union', 'enum', 'typedef', 'sizeof', 'do'
     ]);
+    
+    // 获取当前语言的关键词集合
+    const currentKeywords = languageKeywords[lang] || genericKeywords;
     
     // Check if this is PowerShell
     const isPowershell = lang === 'powershell' || lang === 'ps1' || lang === 'ps';
@@ -283,8 +385,8 @@ function highlight(text, lang) {
                     output += escapeHtml(word);
                 }
             } else {
-                // Generic language highlighting
-                if (keywords.has(word)) {
+                // 使用语言特定的关键词集合
+                if (currentKeywords.has(word)) {
                     output += `<span class="token keyword">${word}</span>`;
                 } else if (remaining.substring(word.length).trim().startsWith('(')) {
                     output += `<span class="token function-name">${word}</span>`;

@@ -27,6 +27,9 @@ if (session_status() == PHP_SESSION_NONE) {
     
     <!-- KaTeX CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    
+    <!-- Highlight.js CSS -->
+    <link rel="stylesheet" href="assets/libs/highlight-monokai.min.css">
 </head>
 <body>
     <header>
