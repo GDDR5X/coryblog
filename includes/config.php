@@ -30,13 +30,13 @@ define('SITE_URL', get_site_url()); // 自动适应环境
 // SMTP 服务器配置 
 define('SMTP_HOST', 'smtp.qq.com');         // SMTP服务器地址 
 define('SMTP_PORT', 465);                 // SMTP端口（SSL: 465, TLS: 587, 非加密: 25） 
-define('SMTP_USERNAME', 'czhdqqyx6044@qq.com');  // 发件人邮箱 
-define('SMTP_PASSWORD', 'nmffdqnmoaxeebgd');     // 邮箱授权码（不是登录密码） 
+define('SMTP_USERNAME', '');  // 发件人邮箱 
+define('SMTP_PASSWORD', '');     // 邮箱授权码（不是登录密码） 
 define('SMTP_ENCRYPTION', 'ssl');         // 加密方式：ssl、tls 或空字符串（非加密） 
 define('SMTP_AUTH', true);               // 是否启用SMTP认证 
 
 // 发件人信息 
-define('MAIL_FROM_EMAIL', 'czhdqqyx6044@qq.com'); 
+define('MAIL_FROM_EMAIL', ''); 
 define('MAIL_FROM_NAME', 'Coryzen');
 
 // 根据SQLite扩展状态加载不同的数据库层
